@@ -6,7 +6,18 @@
 
 #### 1.DispatcherServlet
 
-##### 1.1在web.xml中的配置
+##### 1.2DispatcherServlet的作用
+
+主要用于控制流程，主要的职责如下：
+
+- 文件上传解析，如果请求类型是multipart将通过MultipartResolver进行文件的上传解析;
+- 通过HandlerMapping,将请求映射到处理器(返回一个HandlerExecutionChain,它包括一个处理器,多个HandlerInterceptor拦截器);
+- 通过HandlerAdapter支持多种类型的的处理器(HandleExecutionChain中的处理器);
+- 本地化解析
+- 通过视图解析,渲染具体的视图等;
+- 如果执行的过程中遇到异常将交给HandlerExceptionResolver来解析.
+
+##### 1.2 DispatcherServlet 的配置
 
 ```xml
 <servlet>
@@ -319,11 +330,59 @@ public class SViews {
 }
 ```
 
+#### 15.重定向
 
+> forward为转发，redirect为重定向。在SpingMVC中直接返回视图名称，为请求转发；如果需要重定向，则返回值 "redirect:/index.jsp"
 
+**需要注意的是:重定向的路径相对于项目的根路径**
 
+#### 16.静态资源的加载
 
+> 将DispatcherServlet的请求映射配置为"/",服务器中所有的请求将会被SpringMVC处理,对于静态资源的请求,SpringMVC找不到对应的`handler` ,出错
 
+方法一:
 
+`<mvc:default-servlet-handler/>`
 
+在Tomcat服务器的配置文件web.xml中,有一个DefaultServlet,处理静态资源.
+
+```xml
+ <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>listings</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+```
+
+在springMVC-servlet.xml中配置<mvc:default-servlet-handler />后，会在Spring MVC上下文中定义一个org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，它会像一个检查员，对进入DispatcherServlet的URL进行筛查，如果发现是静态资源的请求，就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 
+
+一般Web应用服务器默认的Servlet名称是"default"，因此DefaultServletHttpRequestHandler可以找到它。如果你所有的Web应用服务器的默认Servlet名称不是"default"，则需要通过default-servlet-name属性显示指定：<mvc:default-servlet-handler default-servlet-name="所使用的Web服务器默认使用的Servlet名称" />
+
+方法二:
+
+`<mvc:resources /> `
+
+<mvc:default-servlet-handler />将静态资源的处理经由Spring MVC框架交回Web应用服务器处理。而<mvc:resources />更进一步，由Spring MVC框架自己处理静态资源，并添加一些有用的附加值功能 .
+
+首先，<mvc:resources />允许静态资源放在任何地方，如WEB-INF目录下、类路径下等，你甚至可以将JavaScript等静态文件打到JAR包中。通过location属性指定静态资源的位置，由于location属性是Resources类型，因此可以使用诸如"classpath:"等的资源前缀指定资源位置。传统Web容器的静态资源只能放在Web容器的根路径下，<mvc:resources />完全打破了这个限制。
+
+其次，<mvc:resources />依据当前著名的Page Speed、YSlow等浏览器优化原则对静态资源提供优化。你可以通过cacheSeconds属性指定静态资源在浏览器端的缓存时间，一般可将该时间设置为一年，以充分利用浏览器端的缓存。在输出静态资源时，会根据配置设置好响应报文头的Expires 和 Cache-Control值。
+
+在接收到静态资源的获取请求时，会检查请求头的Last-Modified值，如果静态资源没有发生变化，则直接返回303相应状态码，提示客户端使用浏览器缓存的数据，而非将静态资源的内容输出到客户端，以充分节省带宽，提高程序性能。
+
+在springMVC-servlet中添加如下配置：
+
+```
+<mvc:resources location="/,classpath:/META-INF/publicResources/" mapping="/resources/**"/>
+```
+
+> 以上摘自https://www.cnblogs.com/dflmg/p/6393416.html
 
