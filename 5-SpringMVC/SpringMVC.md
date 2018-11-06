@@ -275,7 +275,7 @@ public void doBefore(@RequestParam(value="userId")String userId, Map<String, Use
 
 	<!-- 该注解,可以消除mvc:view-controller带来的其他页面无法响应的问题 -->
 
-	<mvc:annotation-driven>/mvc:annotation-driven
+	<mvc:annotation-driven><mvc:annotation-driven/>
 
 ```
 
@@ -385,4 +385,20 @@ public class SViews {
 ```
 
 > 以上摘自https://www.cnblogs.com/dflmg/p/6393416.html
+
+#### 17.<mvc:annotation-driven/>
+
+> 会自动注册
+> RequestMappingHandlerMapping
+> RequestMappingHandlerAdapter 与
+> ExceptionHandlerExceptionResolver 三个bean。
+
+同时,使用该配置文件可以使
+
+- 当前SpringMVC支持使用ConversionService对表单参数进行类型转换
+- @NumberFormat annotation、@DateTimeFormat对数据进行格式化
+- @Valid 注解对参数校验
+- 支持使用@RequestBody 和@ResponseBody
+
+
 
