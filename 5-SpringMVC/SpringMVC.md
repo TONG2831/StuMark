@@ -400,5 +400,81 @@ public class SViews {
 - @Valid 注解对参数校验
 - 支持使用@RequestBody 和@ResponseBody
 
+#### 18.返回JSON
 
+通过AJAX返回JSON数据
+
+@ResponseBody 
+
+@RequestBody
+
+#### 19.文件上传
+
+> SpringMVC通过即插即用的MultipartResolver实现的.Spring用Jakarta CommonsFileUpload技术实现了一个MultipartResolver实现类:CommonsMultipartResolver
+>
+> 默认情况下,没有装配该插件,,需要在上下文中配置MultipartResolver
+
+1.在SpringMVC配置文件
+
+```xml
+<bean id="commonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="maxUploadSize" value="1024000"></property>
+	</bean>
+```
+
+2.前端页面
+
+```html
+<form action="file/testFileUpload" method="post" enctype="multipart/form-data">
+		文件: <input type="file" name="file" >
+		desc:<input type="text" name="desc">
+		    <input type="submit" value="Submit">
+	</form>
+```
+
+3.后端代码
+
+```java
+@RequestMapping("/testFileUpload")
+	public String fileUpload(@RequestParam("desc")String desc,@RequestParam("file")MultipartFile file) throws IOException {
+		System.out.println("desc:"+desc);
+		System.out.println("文件名称:" + file.getOriginalFilename());
+		System.out.println("輸入流:" + file.getInputStream());
+		return "success";
+	}
+```
+
+#### 20.自定义拦截器
+
+> SpringMVC可以使用拦截器对请求进行拦截处理,用户可以自定义拦截实现特定的功能,自定义拦截器必须实现HandlerInterceptor借口.
+
+- **preHandle()**：这个方法在业务处理器处理请求之前被调用，在– 该
+  方法中对用户请求 request 进行处理。如果程序员决定该拦截器对
+  请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去
+  进行处理，则返回true；如果程序员决定不需要再调用其他的组件
+  去处理请求，则返回false
+- **postHandle()**：这个方法在业务处理器处理完请求后，但 –
+  是DispatcherServlet 向客户端返回响应前被调用，在该方法中对
+  用户请求request进行处理。
+- **afterCompletion()**：这个方法在 DispatcherServlet 完全处理完– 请
+  求后被调用，可以在该方法中进行一些资源清理的操作
+
+拦截器的配置:
+
+```xml
+<mvc:interceptors>
+		<!-- 配置自定义的拦截器 -->
+		<bean class="com.atguigu.springmvc.interceptors.FirstInterceptor"></bean>
+		
+		<!-- 配置拦截器(不)作用的路径 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/emps"/>
+			<bean class="com.atguigu.springmvc.interceptors.SecondInterceptor"></bean>
+		</mvc:interceptor>
+		
+		<!-- 配置 LocaleChanceInterceptor -->
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+	</mvc:interceptors>
+```
 
