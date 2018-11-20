@@ -408,6 +408,12 @@ public class SViews {
 
 @RequestBody
 
+
+
+***
+
+
+
 #### 19.文件上传
 
 > SpringMVC通过即插即用的MultipartResolver实现的.Spring用Jakarta CommonsFileUpload技术实现了一个MultipartResolver实现类:CommonsMultipartResolver
@@ -444,6 +450,10 @@ public class SViews {
 		return "success";
 	}
 ```
+
+
+
+***
 
 #### 20.自定义拦截器
 
